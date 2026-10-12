@@ -1,8 +1,6 @@
 from datetime import datetime
 
-time1 = datetime.strptime("10:00:00", "%H:%M:%S")
-time2 = datetime.strptime("10:01:30", "%H:%M:%S")
+timestamp = "2026-10-08T12:00:00+00:00"
+time = datetime.fromisoformat(timestamp)
 
-difference = time2 - time1
-
-print(difference)
+print(time)
