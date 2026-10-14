@@ -1,5 +1,7 @@
+import detection.detection_engine as engine
 from detection.detection_engine import detect_suspicious_activity
 
+print("Loaded file:", engine.__file__)
 
 def test_detect_five_failed_logins():
     events = [
