@@ -1,5 +1,6 @@
 from detection.detection_engine import detect_suspicious_activity
 
+
 def test_detect_five_failed_logins():
     events = [
         {
