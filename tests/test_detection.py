@@ -1,12 +1,17 @@
 from detection.detection_engine import detect_suspicious_activity
 
-def test_detect_suspicious_activity():
+def test_detect_five_failed_logins():
     events = [
-        {"event_type": "failed_login", "username": "admin", "source_ip": "10.0.2.20", "timestamp": "2026-10-08T12:00:00+00:00",},
-        {"event_type": "successful_login", "username": "admin", "source_ip": "10.0.2.20", "timestamp": "2026-10-08T12:00:00+00:00",},
-        {"event_type": "failed_login", "username": "guest", "source_ip": "10.0.2.30", "timestamp": "2026-10-08T12:00:00+00:00",},
-        ]
-    result = detect_suspicious_activity(events)
-    assert len(result) == 2
+        {
+            "event_type": "failed_login",
+            "timestamp": f"2026-10-14T10:00:{second:02d}",
+            "source_ip": "192.0.2.25"
+        }
+        for second in [5, 15, 25, 35, 45]
+    ]
 
-    
+    alerts = detect_suspicious_activity(events)
+
+    assert len(alerts) == 1
+    assert alerts[0]["source_ip"] == "192.0.2.25"
+    assert alerts[0]["attempt_count"] == 5
