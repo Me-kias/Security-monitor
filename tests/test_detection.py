@@ -17,6 +17,8 @@ def test_detect_five_failed_logins():
 
     print("Alerts:", repr(alerts))
     print("Type:", type(alerts))
+    print("Alerts:", repr(alerts), flush=True)
+    print("Type:", type(alerts), flush=True)
     assert len(alerts) == 1
     assert alerts[0]["source_ip"] == "192.0.2.25"
     assert alerts[0]["attempt_count"] == 5
