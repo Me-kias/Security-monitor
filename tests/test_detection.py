@@ -13,6 +13,8 @@ def test_detect_five_failed_logins():
 
     alerts = detect_suspicious_activity(events)
 
+    print("Alerts:", alerts)
+    print("Type:", type(alerts))
     assert len(alerts) == 1
     assert alerts[0]["source_ip"] == "192.0.2.25"
     assert alerts[0]["attempt_count"] == 5
