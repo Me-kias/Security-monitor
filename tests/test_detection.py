@@ -27,7 +27,8 @@ def test_four_failed_logins_do_not_trigger_alert():
     events = [
         {
             "event_type": "failed_login",
-            "timestamp" : f"2026-10-14T10:00{second:02d}",
+            "timestamp" : f"2026-10-14T10:00:{second:02d}",
+            "source_ip": "192.0.2.25"
         }
         for second in [5, 15, 25, 35]
     ]
