@@ -22,3 +22,16 @@ def test_detect_five_failed_logins():
     assert len(alerts) == 1
     assert alerts[0]["source_ip"] == "192.0.2.25"
     assert alerts[0]["attempt_count"] == 5
+
+def test_four_failed_logins_do_not_trigger_alert():
+    events = [
+        {
+            "event_type": "failed_login",
+            "timestamp" : f"2026-10-14T10:00{second:02d}",
+        }
+        for second in [5, 15, 25, 35]
+    ]
+
+    alerts = detect_suspicious_activity(events)
+
+    assert alerts == []
