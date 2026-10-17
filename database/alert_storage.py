@@ -40,3 +40,15 @@ def save_alert(alert):
 if __name__ == "__main__":
     create_database()
     print("Database and alerts table created successfully!")
+
+
+def get_alerts():
+    with sqlite3.connect(DATABASE_FILE) as connection:
+        connection.row_factory = sqlite3.Row
+
+        rows = connection.execute("""
+            SELECT * FROM alerts
+            ORDER BY id DESC
+        """).fetchall()
+
+        return [dict(row) for row in rows]
