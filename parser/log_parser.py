@@ -1,51 +1,59 @@
+
+from datetime import datetime
 import re
+
 
 def parse_log(log):
     parts = log.split()
+    if len(parts) < 4:
+        return None
 
-    timestamp = parts[0]
-    service = parts[2].split("[")[0].strip(":")
+    # Convert the syslog timestamp into ISO format.
+    try:
+        timestamp = datetime.strptime(
+            " ".join(parts[:3]) + f" {datetime.now().year}",
+            "%b %d %H:%M:%S %Y"
+        ).isoformat()
+    except ValueError:
+        return None
+
+    # Extract the service name.
+    service = parts[4].split("[")[0].strip(":") if len(parts) > 4 else None
+
     username = None
 
-    if "sudo" in log:
-        event_type = "sudo_command"
-
-    elif "Failed password" in log:
-        username_match = re.search(r"Failed password for (\S+)", log)
-
+    if "Failed password" in log:
+        username_match = re.search(
+            r"Failed password for (?:invalid user )?(\S+)", log
+        )
         if username_match:
             username = username_match.group(1)
-        else:
-            username = None
 
         event_type = "failed_login"
 
-    elif "Accepted password" in log:
-        username_match = re.search(r"Accepted password for (\S+)", log)
-
+    elif "Accepted password" in log or "Accepted publickey" in log:
+        username_match = re.search(
+            r"Accepted (?:password|publickey) for (\S+)", log
+        )
         if username_match:
             username = username_match.group(1)
-        else:
-            username = None
 
         event_type = "successful_login"
+
+    elif "sudo" in log:
+        event_type = "sudo_command"
 
     else:
         return None
 
-    ip_match = re.search(r"from (\d+\.\d+\.\d+\.\d+)", log)
+    # Extract a basic IPv4 address.
+    ip_match = re.search(r"\bfrom (\d+\.\d+\.\d+\.\d+)\b", log)
+    source_ip = ip_match.group(1) if ip_match else None
 
-    if ip_match:
-        source_ip = ip_match.group(1)
-    else:
-        source_ip = None
-
-    event = {
+    return {
         "timestamp": timestamp,
         "service": service,
         "username": username,
         "source_ip": source_ip,
         "event_type": event_type
     }
-
-    return event
