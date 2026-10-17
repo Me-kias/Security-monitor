@@ -9,5 +9,5 @@ def read_logs():
 for log in read_logs():
     event = parse_log(log)
     
-    if event is not None:
-        print(event)
+if __name__ == "__main__":
+    for log in read_logs():
