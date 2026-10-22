@@ -1,5 +1,3 @@
-
-import detection.detection_engine as engine
 from detection.detection_engine import detect_suspicious_activity
 
 
@@ -14,10 +12,6 @@ def test_detect_five_failed_logins():
     ]
 
     alerts = detect_suspicious_activity(events)
-
-    print("Loaded file:", engine.__file__, flush=True)
-    print("Alerts:", repr(alerts), flush=True)
-    print("Type:", type(alerts), flush=True)
 
     assert len(alerts) == 1
     assert alerts[0]["source_ip"] == "192.0.2.25"
