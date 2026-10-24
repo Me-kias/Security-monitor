@@ -1,3 +1,0 @@
-sudo tail -n 20 /var/log/auth.log
-ssh sudo grep -i ssh /var/log/auth.log | tail -n 20
-sudo tail -f /var/log/auth.log
