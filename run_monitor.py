@@ -1,3 +1,4 @@
+import sys
 
 from collector.log_reader import read_logs
 from parser.log_parser import parse_log
@@ -5,7 +6,7 @@ from detection.detection_engine import detect_suspicious_activity
 from database.alert_storage import create_database, save_alert, get_alerts
 
 
-def run_monitor():
+def run_monitor(log_file=None):
     print("Starting AI-Assisted Cybersecurity Monitor...")
     create_database()
 
@@ -13,6 +14,7 @@ def run_monitor():
     raw_line_count = 0
     skipped_line_count = 0
 
+    logs = read_logs(log_file) if log_file else read_logs()
     for log in read_logs():
         raw_line_count += 1
         event = parse_log(log)
@@ -39,4 +41,4 @@ def run_monitor():
 
 
 if __name__ == "__main__":
-    run_monitor()
+    run_monitor(sys.argv[1] if len(sys.argv) > 1 else None)
