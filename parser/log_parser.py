@@ -6,7 +6,7 @@ import re
 def parse_log(log):
     parts = log.split(maxsplit=3)
 
-    if len(parts) < 4:
+    if len(parts) < 3:
         return None
 
     # Parse the ISO timestamp used by Linux Mint.
@@ -16,7 +16,7 @@ def parse_log(log):
         return None
 
     # Extract the service name, such as sshd or systemd-logind.
-    service_match = re.match(r"([A-Za-z0-9_.-]+)(?:\[\d+\])?:", parts[2])
+    service_match = service_match = re.match(r"([A-Za-z0-9_.-]+)(?:\[\d+\])?:", parts[1])
     if not service_match:
         return None
 
