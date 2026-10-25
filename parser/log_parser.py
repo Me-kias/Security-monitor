@@ -8,28 +8,40 @@ def parse_log(log):
     if len(parts) < 3:
         return None
 
-    # Parse the ISO timestamp.
     try:
         timestamp = datetime.fromisoformat(parts[0]).isoformat()
     except ValueError:
         return None
 
-    # Extract service name, such as sshd or sshd[1001].
+    # Support both:
+    # timestamp sshd[123]: message
+    # timestamp hostname sshd[123]: message
+    service_index = 1
     service_match = re.match(
         r"([A-Za-z0-9_.-]+)(?:\[\d+\])?:",
-        parts[1]
+        parts[service_index]
     )
+
+    if not service_match and len(parts) >= 3:
+        service_index = 2
+        service_match = re.match(
+            r"([A-Za-z0-9_.-]+)(?:\[\d+\])?:",
+            parts[service_index]
+        )
 
     if not service_match:
         return None
 
     service = service_match.group(1)
-    message = parts[2]
+
+    if service_index == 1:
+        message = parts[2]
+    else:
+        message = parts[2].split(":", 1)[1].strip()
 
     username = None
     source_ip = None
 
-    # Detect failed SSH authentication.
     failed_match = re.search(
         r"Failed password for (?:invalid user )?(\S+) "
         r"from (\d{1,3}(?:\.\d{1,3}){3})",
@@ -40,9 +52,7 @@ def parse_log(log):
         username = failed_match.group(1)
         source_ip = failed_match.group(2)
         event_type = "failed_login"
-
     else:
-        # Detect successful SSH authentication.
         success_match = re.search(
             r"Accepted (?:password|publickey) for (\S+) "
             r"from (\d{1,3}(?:\.\d{1,3}){3})",
@@ -53,12 +63,10 @@ def parse_log(log):
             username = success_match.group(1)
             source_ip = success_match.group(2)
             event_type = "successful_login"
-
         elif service == "sudo" and "COMMAND=" in message:
             username_match = re.search(r"\bUSER=(\S+)", message)
             username = username_match.group(1) if username_match else None
             event_type = "sudo_command"
-
         else:
             return None
 
