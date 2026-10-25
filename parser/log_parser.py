@@ -1,35 +1,39 @@
-
 from datetime import datetime
 import re
 
 
 def parse_log(log):
-    parts = log.split(maxsplit=3)
+    parts = log.split(maxsplit=2)
 
     if len(parts) < 3:
         return None
 
-    # Parse the ISO timestamp used by Linux Mint.
+    # Parse the ISO timestamp.
     try:
         timestamp = datetime.fromisoformat(parts[0]).isoformat()
     except ValueError:
         return None
 
-    # Extract the service name, such as sshd or systemd-logind.
-    service_match = service_match = re.match(r"([A-Za-z0-9_.-]+)(?:\[\d+\])?:", parts[1])
+    # Extract service name, such as sshd or sshd[1001].
+    service_match = re.match(
+        r"([A-Za-z0-9_.-]+)(?:\[\d+\])?:",
+        parts[1]
+    )
+
     if not service_match:
         return None
 
     service = service_match.group(1)
-    message = parts[3]
+    message = parts[2]
 
     username = None
     source_ip = None
 
-    # Failed SSH authentication.
+    # Detect failed SSH authentication.
     failed_match = re.search(
-        r"Failed password for (?:invalid user )?(\S+) from (\d{1,3}(?:\.\d{1,3}){3})",
-        message,
+        r"Failed password for (?:invalid user )?(\S+) "
+        r"from (\d{1,3}(?:\.\d{1,3}){3})",
+        message
     )
 
     if failed_match and service == "sshd":
@@ -38,10 +42,11 @@ def parse_log(log):
         event_type = "failed_login"
 
     else:
-        # Successful SSH password or public-key authentication.
+        # Detect successful SSH authentication.
         success_match = re.search(
-            r"Accepted (?:password|publickey) for (\S+) from (\d{1,3}(?:\.\d{1,3}){3})",
-            message,
+            r"Accepted (?:password|publickey) for (\S+) "
+            r"from (\d{1,3}(?:\.\d{1,3}){3})",
+            message
         )
 
         if success_match and service == "sshd":
