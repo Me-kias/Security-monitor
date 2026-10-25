@@ -15,7 +15,7 @@ def run_monitor(log_file=None):
     skipped_line_count = 0
 
     logs = read_logs(log_file) if log_file else read_logs()
-    for log in logs():
+    for log in logs:
         raw_line_count += 1
         event = parse_log(log)
 
