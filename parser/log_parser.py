@@ -8,10 +8,15 @@ def parse_log(log):
     if len(parts) < 3:
         return None
 
+  try:
+    timestamp = datetime.fromisoformat(parts[0]).isoformat()
+except ValueError:
     try:
-        timestamp = datetime.fromisoformat(parts[0]).isoformat()
+        timestamp = datetime.strptime(
+            " ".join(parts[:3]), "%b %d %H:%M:%S"
+        ).replace(year=datetime.now().year).isoformat()
     except ValueError:
-        return None
+    return None
 
     # Support both:
     # timestamp sshd[123]: message
