@@ -1,3 +1,4 @@
+
 from datetime import datetime
 import re
 
@@ -8,15 +9,15 @@ def parse_log(log):
     if len(parts) < 3:
         return None
 
-  try:
-    timestamp = datetime.fromisoformat(parts[0]).isoformat()
-except ValueError:
     try:
-        timestamp = datetime.strptime(
-            " ".join(parts[:3]), "%b %d %H:%M:%S"
-        ).replace(year=datetime.now().year).isoformat()
+        timestamp = datetime.fromisoformat(parts[0]).isoformat()
     except ValueError:
-    return None
+        try:
+            timestamp = datetime.strptime(
+                " ".join(parts[:3]), "%b %d %H:%M:%S"
+            ).replace(year=datetime.now().year).isoformat()
+        except ValueError:
+            return None
 
     # Support both:
     # timestamp sshd[123]: message
@@ -70,7 +71,9 @@ except ValueError:
             event_type = "successful_login"
         elif service == "sudo" and "COMMAND=" in message:
             username_match = re.search(r"\bUSER=(\S+)", message)
-            username = username_match.group(1) if username_match else None
+            username = (
+                username_match.group(1) if username_match else None
+            )
             event_type = "sudo_command"
         else:
             return None
