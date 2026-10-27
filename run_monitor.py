@@ -7,7 +7,7 @@ from database.alert_storage import create_database, save_alert, get_alerts
 
 
 def run_monitor(log_file=None):
-    print("Starting AI-Assisted Cybersecurity Monitor...")
+    print("Security Monitor...")
     create_database()
 
     events = []
