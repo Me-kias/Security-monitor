@@ -1,7 +1,7 @@
 
 import sqlite3
 
-DATABASE_FILE = "/home/mint/Security-monitor/security_alerts.db"
+DATABASE_FILE = "/mnt/security_alerts.db""
 
 
 def create_database():
