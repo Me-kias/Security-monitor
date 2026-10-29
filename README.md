@@ -105,7 +105,7 @@ Uses `pytest` to test the parser and detection logic with representative input d
 ## Project Structure
 
 ```text
-ai-security-monitor/
+Security-monitor/
 ├── collector/
 │   ├── log_reader.py
 │   └── python_practice.py
@@ -143,7 +143,7 @@ Replace the example URL with your actual GitHub repository URL.
 
 ```bash
 git clone <YOUR_REPOSITORY_URL>
-cd ai-security-monitor
+cd Security-monitor
 ```
 
 If you renamed the repository or local folder, use the correct URL and folder name.
@@ -236,9 +236,9 @@ The repository is an educational prototype and is not intended to replace a prod
 - [x] Store alerts in SQLite
 - [x] Add initial automated tests
 - [x] Display alerts in Grafana
-- [ ] Improve parser coverage and error handling
-- [ ] Improve detection tests and alert deduplication
-- [ ] Complete end-to-end testing and documentation
+- [x] Improve parser coverage and error handling
+- [x] Improve detection tests and alert deduplication
+- [x] Complete end-to-end testing and documentation
 
 ## Learning Outcomes
 
