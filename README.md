@@ -1,16 +1,14 @@
-# AI-Assisted Cybersecurity Monitoring
+# Security Monitor
 
-A Python-based cybersecurity monitoring prototype that processes Linux authentication logs, identifies potentially suspicious login activity, and stores security alerts for investigation.
+A Python-based cybersecurity monitoring tool that processes Linux authentication logs, detects potentially suspicious login activity, and stores security alerts for investigation.
 
 ## Overview
 
-Security monitoring helps organizations identify suspicious activity by collecting and analyzing system events. This project explores the fundamentals of that process by building a small, modular monitoring system using Python and Linux authentication logs.
+Security monitoring helps identify suspicious activity by collecting and analyzing system events. This project demonstrates the basics of security monitoring using Python, Linux authentication logs, SQLite, and Grafana.
 
-The system reads authentication-related log entries, converts recognized events into structured data, applies rule-based detection, and stores generated alerts in an SQLite database.
+The system reads log entries, converts recognized messages into structured security events, applies detection rules, stores alerts in a database, and displays them in a Grafana dashboard.
 
-The long-term goal is to add AI-assisted alert explanations to help users understand why an alert was generated and what to investigate next.
-
-**Project status:** In development
+**Project status:** Core features implemented; final testing and documentation in progress.
 
 ## Objectives
 
@@ -20,8 +18,8 @@ The long-term goal is to add AI-assisted alert explanations to help users unders
 - Detect repeated failed authentication attempts.
 - Store security alerts in an SQLite database.
 - Test parsing and detection logic with automated tests.
-- Develop a dashboard for reviewing alerts.
-- Explore AI-assisted security alert explanations.
+- Display security alerts in Grafana.
+- Document and demonstrate the complete monitoring workflow.
 
 ## Architecture
 
@@ -41,24 +39,20 @@ Linux Authentication Logs
      SQLite Database
           |
           v
-    Security Dashboard
-          |
-          v
- AI-Assisted Explanation
-       (Planned)
+    Grafana Dashboard
 ```
 
-The system is designed as separate components so that log collection, parsing, detection, storage, and presentation can be developed and tested independently.
+Each component has a separate responsibility. This makes the system easier to understand, test, and maintain.
 
-## Current Features
+## Features
 
 ### Log Collection
 
-Reads Linux authentication logs from `/var/log/auth.log` and passes individual log entries to the parser.
+Reads Linux authentication logs from `/var/log/auth.log` or a specified sample log file and provides individual log entries for processing.
 
 ### Log Parsing
 
-Extracts structured information from recognized log messages, including:
+Extracts structured information from supported log messages, including:
 
 - Timestamp
 - Service name
@@ -66,21 +60,21 @@ Extracts structured information from recognized log messages, including:
 - Source IP address
 - Event type
 
-The parser currently recognizes selected SSH authentication events and `sudo` command events.
+The parser recognizes selected SSH authentication events and `sudo` command events.
 
 ### Rule-Based Detection
 
-The detection engine includes a rule for identifying repeated failed login attempts from the same source IP address.
+The detection engine identifies repeated failed login attempts from the same source IP address.
 
-The current test rule triggers when at least five failed login events occur within a 120-second window.
+The current rule generates an alert when at least five failed login events occur within a 120-second window.
 
-A detection indicates potentially suspicious activity; it does not, by itself, prove that an attack occurred.
+A detection indicates potentially suspicious activity. It does not automatically prove that an attack occurred.
 
 ### Alert Storage
 
-Uses SQLite to store security alerts for later retrieval and analysis.
+Uses SQLite to store security alerts for later retrieval.
 
-Alert records include fields such as:
+Alert records include:
 
 - Alert type
 - Source IP address
@@ -88,29 +82,33 @@ Alert records include fields such as:
 - Description
 - Creation timestamp
 
+### Grafana Dashboard
+
+Grafana displays stored security alerts in a table so they can be reviewed and investigated.
+
 ### Automated Testing
 
-Uses `pytest` to test components and verify expected behavior with representative input data.
+Uses `pytest` to test the parser and detection logic with representative input data, including failed logins, successful logins, and invalid log entries.
 
 ## Technology Stack
 
 | Technology | Purpose |
 |---|---|
-| Python | Log processing and detection logic |
-| Linux Mint | Development and log source environment |
+| Python | Log processing and detection |
+| Linux Mint | Development environment |
 | Regular expressions | Extracting information from log messages |
 | SQLite | Persistent alert storage |
 | pytest | Automated testing |
 | Git and GitHub | Version control and project documentation |
-| Grafana | Planned alert visualization |
-| AI / LLM API | Planned alert explanation and investigation support |
+| Grafana | Security alert dashboard |
 
 ## Project Structure
 
 ```text
-Ai-security-monitor/
+ai-security-monitor/
 ├── collector/
-│   └── log_reader.py
+│   ├── log_reader.py
+│   └── python_practice.py
 ├── parser/
 │   └── log_parser.py
 ├── detection/
@@ -118,31 +116,37 @@ Ai-security-monitor/
 ├── database/
 │   └── alert_storage.py
 ├── tests/
+│   ├── test_parser.py
+│   └── test_detection.py
 ├── run_monitor.py
-├── datetime_test.py
-├── security_alerts.db
+├── sample_auth.log
 └── README.md
 ```
 
-The exact files and directories may evolve as the project develops.
+The repository folder may still have its original name, `ai-security-monitor`. The project itself is called **Security Monitor**.
 
 ## Getting Started
 
 ### Prerequisites
 
 - Python 3
-- Linux environment with access to authentication logs
-- SQLite support through Python's standard library
-- `pytest` for running automated tests
+- Linux environment
+- Access to authentication logs if testing with real system logs
+- `pytest` for automated testing
+- Grafana for dashboard visualization
+
+SQLite is available through Python's standard library.
 
 ### 1. Clone the repository
 
+Replace the example URL with your actual GitHub repository URL.
+
 ```bash
 git clone <YOUR_REPOSITORY_URL>
-cd Ai-security-monitor
+cd ai-security-monitor
 ```
 
-Replace `<YOUR_REPOSITORY_URL>` with the URL of your GitHub repository.
+If you renamed the repository or local folder, use the correct URL and folder name.
 
 ### 2. Create a virtual environment
 
@@ -157,73 +161,72 @@ source .venv/bin/activate
 python3 -m pip install pytest
 ```
 
-Install any additional dependencies required by the current version of the project.
+### 4. Run the monitor with sample data
 
-### 4. Run the monitor
+From the project root, run:
 
-From the project root:
+```bash
+python3 run_monitor.py sample_auth.log
+```
+
+The program processes the sample log, detects repeated failed logins, and saves any generated alerts to the configured SQLite database.
+
+### 5. Run the monitor with system logs
 
 ```bash
 python3 run_monitor.py
 ```
 
-The program requires read access to the configured authentication log. Depending on the system, elevated permissions may be necessary.
+The program uses `/var/log/auth.log` by default. Depending on the system, access permissions may be required.
 
-### 5. Run the tests
+### 6. Run the automated tests
 
 ```bash
 python3 -m pytest
 ```
 
+### 7. View the alerts
+
+Open your Grafana dashboard and review the alerts retrieved from the SQLite database.
+
+The database must be accessible through the configured database path, and Grafana must be connected to the correct data source.
+
 ## Example Detection Scenario
 
-The following is illustrative test data, not evidence of a real attack:
+The following is synthetic test data, not evidence of a real attack.
 
-```text
-Event 1: Failed login from 10.0.2.20
-Event 2: Failed login from 10.0.2.20
-Event 3: Failed login from 10.0.2.20
-Event 4: Failed login from 10.0.2.20
-Event 5: Failed login from 10.0.2.20
-```
+Five failed login events occur from the same source IP address within 120 seconds.
 
-If all five events fall within the configured 120-second window, the detection rule can generate an alert similar to:
+Example alert:
 
 ```text
 Alert type: repeated_failed_logins
-Source IP: 10.0.2.20
+Source IP: 192.0.2.25
 Attempt count: 5
-Description: 5 failed login attempts within 120 seconds
+Description: 5 failed login attempts from 192.0.2.25 within 120 seconds
 ```
 
-The alert provides evidence for further investigation. Legitimate users can also make repeated mistakes, so additional context is needed before drawing conclusions.
-
-## AI-Assisted Analysis
-
-AI-assisted analysis is a planned extension of the project.
-
-The intended functionality is to provide explanations of existing alerts, summarize the evidence behind a detection, and suggest investigation steps.
-
-The detection engine remains rule-based. AI is intended to support human investigation rather than replace detection rules or independently determine whether an incident is malicious.
+The alert provides evidence for further investigation. Legitimate users can also make repeated login mistakes, so additional context is needed before drawing conclusions.
 
 ## Security and Privacy
 
-- Use only systems and log data you are authorized to access.
+- Only access systems and log data you are authorized to use.
 - Use synthetic events when testing detection rules.
-- Do not commit passwords, API keys, access tokens, or other secrets.
+- Never commit passwords, API keys, or other secrets.
 - Review log files and database contents before publishing them.
 - Avoid publishing personal information or sensitive authentication records.
-- Treat alerts as indicators that require investigation, not definitive proof of an attack.
+- Treat alerts as indicators for investigation, not definitive proof of an attack.
 
 The repository is an educational prototype and is not intended to replace a production Security Information and Event Management (SIEM) platform.
 
 ## Current Limitations
 
-- The parser supports selected log formats rather than every Linux authentication event.
-- The current log reader processes the configured log file when run; continuous monitoring is not yet implemented.
-- The initial detection logic focuses on repeated failed logins from a single source IP.
-- Real failed SSH login events have not yet been confirmed in the development environment; synthetic events are used for detection testing.
-- Dashboard integration and AI-assisted explanations are planned extensions.
+- The parser supports selected log formats, not every Linux authentication event.
+- The monitor processes a log file when run; continuous monitoring is not implemented.
+- The initial detection rule focuses on repeated failed logins from a single source IP address.
+- Real failed SSH login events have not been confirmed in the development environment, so synthetic events are used for detection testing.
+- Re-running the sample can create duplicate alerts because alert deduplication has not been implemented.
+- The dashboard displays stored alerts but does not provide a complete enterprise investigation workflow.
 
 ## Roadmap
 
@@ -232,10 +235,9 @@ The repository is an educational prototype and is not intended to replace a prod
 - [x] Implement a repeated failed-login detection rule
 - [x] Store alerts in SQLite
 - [x] Add initial automated tests
+- [x] Display alerts in Grafana
 - [ ] Improve parser coverage and error handling
 - [ ] Improve detection tests and alert deduplication
-- [ ] Visualize alerts in a dashboard
-- [ ] Add AI-assisted alert explanations
 - [ ] Complete end-to-end testing and documentation
 
 ## Learning Outcomes
@@ -250,12 +252,12 @@ This project provides practical experience with:
 - Automated testing
 - Modular software development
 - Security alert investigation
-- AI-assisted security analysis
+- Git and GitHub
 
 ## Disclaimer
 
-This project is developed for educational purposes. It is a learning prototype and has not been validated as a production security monitoring solution.
+This project was developed for educational purposes. It is a learning prototype and has not been validated as a production security monitoring solution.
 
 ## Author
 
-Developed as a cybersecurity learning project focused on Linux security monitoring, Python automation, and AI-assisted investigation.
+Developed as a cybersecurity learning project focused on Linux security monitoring, Python programming, and security alert investigation.
